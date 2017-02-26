@@ -1,0 +1,13 @@
+---
+- gather_facts: no
+  hosts: server
+  remote_user: root
+  roles:
+     - root
+
+- become: yes
+  become_user: ubuntu
+  gather_facts: no
+  hosts: server
+  roles:
+     - ubuntu
