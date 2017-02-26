@@ -1,0 +1,163 @@
+---
+
+- copy: >
+    dest=/etc/inputrc
+    group=root
+    mode=0644
+    owner=root
+    src=roles/root/files/etc/inputrc
+
+- copy: >
+    dest=/etc/tmux.conf
+    group=root
+    mode=0644
+    owner=root
+    src=roles/root/files/etc/tmux.conf
+
+- apt_key: id=4F4EA0AAE5267A6C keyserver=keyserver.ubuntu.com state=present
+
+- apt_repository: repo='deb http://ppa.launchpad.net/ondrej/php/ubuntu xenial main' state=present update_cache=yes
+
+- apt: pkg={{ item }} state=installed update-cache=yes
+  with_items:
+    - apache2
+    - binutils
+    - build-essential
+    - ca-certificates
+    - curl
+    - gettext
+    - git
+    - htop
+    - libapache2-mod-php7.0
+    - libmysqlclient-dev
+    - mariadb-client
+    - mariadb-server
+    - ncdu
+    - nload
+    - php7.0
+    - php7.0-bcmath
+    - php7.0-bz2
+    - php7.0-cgi
+    - php7.0-cli
+    - php7.0-common
+    - php7.0-curl
+    - php7.0-dba
+    - php7.0-dev
+    - php7.0-enchant
+    - php7.0-fpm
+    - php7.0-gd
+    - php7.0-gmp
+    - php7.0-imap
+    - php7.0-interbase
+    - php7.0-intl
+    - php7.0-json
+    - php7.0-ldap
+    - php7.0-mbstring
+    - php7.0-mcrypt
+    - php7.0-mysql
+    - php7.0-odbc
+    - php7.0-opcache
+    - php7.0-pgsql
+    - php7.0-phpdbg
+    - php7.0-pspell
+    - php7.0-readline
+    - php7.0-recode
+    - php7.0-snmp
+    - php7.0-soap
+    - php7.0-sqlite3
+    - php7.0-sybase
+    - php7.0-tidy
+    - php7.0-xml
+    - php7.0-xmlrpc
+    - php7.0-xsl
+    - php7.0-zip
+    - python
+    - python-pip
+    - tmux
+    - tree
+    - unzip
+    - vim
+
+- pip: name={{ item }}
+  with_items:
+    - mysql-python
+    - speedtest-cli
+
+- service: enabled=yes name=apache2 state=started
+
+- copy: >
+    dest=/etc/apache2/sites-available/000-default.conf
+    group=root
+    mode=0644
+    owner=root
+    src=roles/root/files/etc/apache2/sites-available/000-default.conf
+
+- service: enabled=yes name=apache2 state=restarted
+
+- service: enabled=yes name=mysql state=started
+
+- ignore_errors: true
+  mysql_user: >
+    host={{ item }}
+    name={{ mysql_username }}
+    password={{ mysql_password }}
+    priv=*.*:ALL,GRANT
+    state=present
+  with_items:
+    - 127.0.0.1
+    - ::1
+    - localhost
+
+- command: 'mysql -ne "{{ item }}"'
+  with_items:
+    - FLUSH PRIVILEGES
+
+- template: >
+    dest=/root/.my.cnf
+    group=root
+    mode=0600
+    owner=root
+    src=root/.my.cnf
+
+- action: >
+    mysql_user
+    user=""
+    state=absent
+
+- action: >
+    mysql_db
+    db=test
+    state=absent
+
+- command: 'mysql -ne "{{ item }}"'
+  with_items:
+    - FLUSH PRIVILEGES
+
+- service: enabled=yes name=mysql state=restarted
+
+- service: enabled=yes name=php7.0-fpm state=started
+
+- copy: >
+    dest=/etc/php/7.0/apache2/php.ini
+    group=root
+    mode=0644
+    owner=root
+    src=roles/root/files/etc/php/7.0/apache2/php.ini
+- copy: >
+    dest=/etc/php/7.0/cli/php.ini
+    group=root
+    mode=0644
+    owner=root
+    src=roles/root/files/etc/php/7.0/cli/php.ini
+- copy: >
+    dest=/etc/php/7.0/fpm/php.ini
+    group=root
+    mode=0644
+    owner=root
+    src=roles/root/files/etc/php/7.0/fpm/php.ini
+
+- command: 'phpenmod bcmath bz2 curl dba enchant gd gmp imap interbase intl json ldap mbstring mcrypt odbc opcache pgsql pspell readline recode snmp soap sqlite3 tidy xml xmlrpc xsl zip'
+
+- service: enabled=yes name=php7.0-fpm state=restarted
+
+- user: name=ubuntu shell=/bin/bash
