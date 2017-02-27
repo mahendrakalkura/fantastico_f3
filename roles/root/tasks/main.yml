@@ -99,14 +99,14 @@
 - ignore_errors: true
   mysql_user: >
     host={{ item }}
-    name={{ mysql_username }}
+    name={{ mysql_user }}
     password={{ mysql_password }}
     priv=*.*:ALL,GRANT
     state=present
   with_items:
+    - localhost
     - 127.0.0.1
     - ::1
-    - localhost
 
 - command: 'mysql -ne "{{ item }}"'
   with_items:
@@ -118,6 +118,13 @@
     mode=0600
     owner=root
     src=root/.my.cnf
+
+- template: >
+    dest=/etc/mysql/my.cnf
+    group=root
+    mode=0600
+    owner=root
+    src=etc/mysql/my.cnf
 
 - action: >
     mysql_user
@@ -156,8 +163,63 @@
     owner=root
     src=roles/root/files/etc/php/7.0/fpm/php.ini
 
-- command: 'phpenmod bcmath bz2 curl dba enchant gd gmp imap interbase intl json ldap mbstring mcrypt odbc opcache pgsql pspell readline recode snmp soap sqlite3 tidy xml xmlrpc xsl zip'
+- shell: phpenmod bcmath bz2 curl dba enchant gd gmp imap interbase intl json ldap mbstring mcrypt odbc opcache pgsql pspell readline recode snmp soap sqlite3 tidy xml xmlrpc xsl zip
+  args:
+    executable: /bin/bash
 
 - service: enabled=yes name=php7.0-fpm state=restarted
+
+- shell: grep 'administrators.fantastico_f3.com' /etc/hosts || echo '127.0.0.1 administrators.fantastico_f3.com' >> /etc/hosts
+  args:
+    executable: /bin/bash
+
+- shell: grep 'visitors.fantastico_f3.com' /etc/hosts || echo '127.0.0.1 visitors.fantastico_f3.com' >> /etc/hosts
+  args:
+    executable: /bin/bash
+
+- shell: grep 'ubuntu.fantastico_f3.com' /etc/hosts || echo '127.0.0.1 ubuntu.fantastico_f3.com' >> /etc/hosts
+  args:
+    executable: /bin/bash
+
+- shell: mkdir --parents /var/netenberg/fantastico_f3
+  args:
+    executable: /bin/bash
+
+- shell: cd /var/netenberg/fantastico_f3 && curl -O http://174.120.165.106/fantastico_f3/sources.tar.bz2
+  args:
+    executable: /bin/bash
+
+- shell: cd /var/netenberg/fantastico_f3 && tar --bzip2 --extract --file sources.tar.bz2
+  args:
+    executable: /bin/bash
+
+- shell: mkdir --parents /var/netenberg/fantastico_f3/sources/options
+  args:
+    executable: /bin/bash
+
+- copy: >
+    dest=/var/netenberg/fantastico_f3/sources/options/apache.txt
+    group=root
+    mode=0644
+    owner=root
+    src=roles/root/files/var/netenberg/fantastico_f3/sources/options/apache.txt
+- copy: >
+    dest=/var/netenberg/fantastico_f3/sources/options/mysql.txt
+    group=root
+    mode=0644
+    owner=root
+    src=roles/root/files/var/netenberg/fantastico_f3/sources/options/mysql.txt
+- copy: >
+    dest=/var/netenberg/fantastico_f3/sources/options/php.txt
+    group=root
+    mode=0644
+    owner=root
+    src=roles/root/files/var/netenberg/fantastico_f3/sources/options/php.txt
+- copy: >
+    dest=/var/netenberg/fantastico_f3/sources/options/users.txt
+    group=root
+    mode=0644
+    owner=root
+    src=roles/root/files/var/netenberg/fantastico_f3/sources/options/users.txt
 
 - user: name=ubuntu shell=/bin/bash
