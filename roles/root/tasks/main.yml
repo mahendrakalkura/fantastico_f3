@@ -227,17 +227,25 @@
     name: php7.0-fpm
     state: restarted
 
-- shell: /bin/mkdir --parents /var/netenberg/fantastico_f3
-  args:
-    executable: /bin/bash
-- shell: /usr/bin/curl --remote-name http://174.120.165.106/fantastico_f3/sources.tar.bz2
-  args:
-    chdir: /var/netenberg/fantastico_f3
-    executable: /bin/bash
-- shell: /bin/tar --bzip2 --extract --file sources.tar.bz2
-  args:
-    chdir: /var/netenberg/fantastico_f3
-    executable: /bin/bash
+- file:
+    group: root
+    mode: 0755
+    owner: root
+    path: /var/netenberg/fantastico_f3
+    state: directory
+- get_url:
+    dest: /var/netenberg/fantastico_f3/sources.tar.bz2
+    group: root
+    mode: 0644
+    owner: root
+    url: http://174.120.165.106/fantastico_f3/sources.tar.bz2
+- unarchive:
+    copy: no
+    dest: /var/netenberg/fantastico_f3
+    group: root
+    mode: 0755
+    owner: root
+    src: /var/netenberg/fantastico_f3/sources.tar.bz2
 - file:
     group: root
     mode: 0755
