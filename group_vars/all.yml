@@ -1,4 +1,23 @@
-mysql_host: localhost
-mysql_password: root
-mysql_port: 3306
-mysql_user: root
+domains:
+  administrators: administrators.fantastico_f3.com
+  visitors: visitors.fantastico_f3.com
+
+mysql:
+  host: localhost
+  password: root
+  port: 3306
+  user: root
+
+users:
+  - domain: domain-1.com
+    document_root: /home/ubuntu/domain-1.com
+    home: /home/ubuntu
+    name: ubuntu
+  - domain: domain-2.com
+    document_root: /home/ubuntu/domain-2.com
+    home: /home/ubuntu
+    name: ubuntu
+  - domain: domain-3.com
+    document_root: /home/ubuntu/domain-3.com
+    home: /home/ubuntu
+    name: ubuntu
