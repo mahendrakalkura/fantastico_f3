@@ -1,9 +1,0 @@
----
-
-- file:
-    group: ubuntu
-    mode: 0755
-    owner: ubuntu
-    path: "{{ item.document_root }}"
-    state: directory
-  with_items: "{{ users }}"

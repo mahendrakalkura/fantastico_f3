@@ -1,6 +1,6 @@
 #jinja2: trim_blocks: "true", lstrip_blocks: "false"
 {% for user in users %}
     {% for domain, document_root in user.domains_and_document_roots.items() %}
-{{ user.username }}:{{ user.home }}:{{ domain }}:{{ document_root }}
+127.0.0.1 {{ domain }}
     {% endfor %}
 {% endfor %}

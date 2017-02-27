@@ -19,49 +19,49 @@
     - git
     - htop
     - libapache2-mod-authnz-external
-    - libapache2-mod-php7.0
+    - libapache2-mod-php5.6
     - libmysqlclient-dev
     - mariadb-client
     - mariadb-server
     - ncdu
     - nload
-    - php7.0
-    - php7.0-bcmath
-    - php7.0-bz2
-    - php7.0-cgi
-    - php7.0-cli
-    - php7.0-common
-    - php7.0-curl
-    - php7.0-dba
-    - php7.0-dev
-    - php7.0-enchant
-    - php7.0-fpm
-    - php7.0-gd
-    - php7.0-gmp
-    - php7.0-imap
-    - php7.0-interbase
-    - php7.0-intl
-    - php7.0-json
-    - php7.0-ldap
-    - php7.0-mbstring
-    - php7.0-mcrypt
-    - php7.0-mysql
-    - php7.0-odbc
-    - php7.0-opcache
-    - php7.0-pgsql
-    - php7.0-phpdbg
-    - php7.0-pspell
-    - php7.0-readline
-    - php7.0-recode
-    - php7.0-snmp
-    - php7.0-soap
-    - php7.0-sqlite3
-    - php7.0-sybase
-    - php7.0-tidy
-    - php7.0-xml
-    - php7.0-xmlrpc
-    - php7.0-xsl
-    - php7.0-zip
+    - php5.6
+    - php5.6-bcmath
+    - php5.6-bz2
+    - php5.6-cgi
+    - php5.6-cli
+    - php5.6-common
+    - php5.6-curl
+    - php5.6-dba
+    - php5.6-dev
+    - php5.6-enchant
+    - php5.6-fpm
+    - php5.6-gd
+    - php5.6-gmp
+    - php5.6-imap
+    - php5.6-interbase
+    - php5.6-intl
+    - php5.6-json
+    - php5.6-ldap
+    - php5.6-mbstring
+    - php5.6-mcrypt
+    - php5.6-mysql
+    - php5.6-odbc
+    - php5.6-opcache
+    - php5.6-pgsql
+    - php5.6-phpdbg
+    - php5.6-pspell
+    - php5.6-readline
+    - php5.6-recode
+    - php5.6-snmp
+    - php5.6-soap
+    - php5.6-sqlite3
+    - php5.6-sybase
+    - php5.6-tidy
+    - php5.6-xml
+    - php5.6-xmlrpc
+    - php5.6-xsl
+    - php5.6-zip
     - pwauth
     - python
     - python-pip
@@ -76,28 +76,9 @@
     - mysql-python
     - speedtest-cli
 
-- shell: |
-    /bin/grep "{{ domains.administrators }}" /etc/hosts              \
-    ||                                                               \
-    /bin/echo "127.0.0.1 {{ domains.administrators }}" >> /etc/hosts
-  args:
-    chdir: /etc
-    executable: /bin/bash
-
-- shell: |
-    /bin/grep "{{ domains.visitors }}" /etc/hosts              \
-    ||                                                         \
-    /bin/echo "127.0.0.1 {{ domains.visitors }}" >> /etc/hosts
-  args:
-    executable: /bin/bash
-
-- shell: |
-    /bin/grep "{{ item.domain }}" /etc/hosts              \
-    ||                                                    \
-    /bin/echo "127.0.0.1 {{ item.domain }}" >> /etc/hosts
-  args:
-    executable: /bin/bash
-  with_items: "{{ users }}"
+- blockinfile:
+    block: "{{ lookup('template', 'etc/hosts') }}"
+    dest: /etc/hosts
 
 - copy:
     dest: /etc/inputrc
@@ -112,6 +93,33 @@
     mode: 0644
     owner: root
     src: roles/root/files/etc/tmux.conf
+
+- group:
+    name: "{{ item.username }}"
+    state: present
+  with_items: "{{ users }}"
+- user:
+    createhome: yes
+    home: "{{ item.home }}"
+    password: "{{ item.password|password_hash('sha512') }}"
+    name: "{{ item.username }}"
+    group: "{{ item.username }}"
+    shell: /bin/bash
+  with_items: "{{ users }}"
+- file:
+    group: "{{ item.group }}"
+    mode: 0755
+    owner: "{{ item.owner }}"
+    path: "{{ item.path }}"
+    state: directory
+  with_document_roots: "{{ users }}"
+- template:
+    dest: "{{ item.home }}/my.cnf"
+    group: "{{ item.username }}"
+    mode: 0600
+    owner: "{{ item.username }}"
+    src: root/my.cnf
+  with_items: "{{ users }}"
 
 - service:
     enabled: yes
@@ -152,23 +160,31 @@
   args:
     executable: /bin/bash
 - template:
-    dest: /root/.my.cnf
-    group: root
-    mode: 0600
-    owner: root
-    src: root/.my.cnf
-- template:
     dest: /etc/mysql/my.cnf
     group: root
     mode: 0600
     owner: root
     src: etc/mysql/my.cnf
+- template:
+    dest: /root/my.cnf
+    group: root
+    mode: 0600
+    owner: root
+    src: root/my.cnf
 - mysql_user:
     state: absent
     user: ""
 - mysql_db:
     db: test
     state: absent
+- ignore_errors: true
+  mysql_user:
+    host: "{{ mysql.host }}"
+    name: "{{ item.username }}"
+    password: "{{ item.password }}"
+    priv: "*.*:ALL,GRANT"
+    state: present
+  with_items: "{{ users }}"
 - shell: /usr/bin/mysql --execute="FLUSH PRIVILEGES" --unbuffered
   args:
     executable: /bin/bash
@@ -179,26 +195,26 @@
 
 - service:
     enabled: yes
-    name: php7.0-fpm
+    name: php5.6-fpm
     state: started
 - copy:
-    dest: /etc/php/7.0/apache2/php.ini
+    dest: /etc/php/5.6/apache2/php.ini
     group: root
     mode: 0644
     owner: root
-    src: roles/root/files/etc/php/7.0/apache2/php.ini
+    src: roles/root/files/etc/php/5.6/apache2/php.ini
 - copy:
-    dest: /etc/php/7.0/cli/php.ini
+    dest: /etc/php/5.6/cli/php.ini
     group: root
     mode: 0644
     owner: root
-    src: roles/root/files/etc/php/7.0/cli/php.ini
+    src: roles/root/files/etc/php/5.6/cli/php.ini
 - copy:
-    dest: /etc/php/7.0/fpm/php.ini
+    dest: /etc/php/5.6/fpm/php.ini
     group: root
     mode: 0644
     owner: root
-    src: roles/root/files/etc/php/7.0/fpm/php.ini
+    src: roles/root/files/etc/php/5.6/fpm/php.ini
 - get_url:
     dest: /root/ioncube_loaders_lin_x86-64.tar.gz
     group: root
@@ -207,17 +223,17 @@
     url: http://downloads3.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz
 - unarchive:
     copy: no
-    dest: /usr/lib/php/20151012
+    dest: /usr/lib/php/20131226
     group: root
     mode: 0755
     owner: root
     src: /root/ioncube_loaders_lin_x86-64.tar.gz
 - copy:
-    dest: /etc/php/7.0/mods-available/ioncube.ini
+    dest: /etc/php/5.6/mods-available/ioncube.ini
     group: root
     mode: 0644
     owner: root
-    src: roles/root/files/etc/php/7.0/mods-available/ioncube.ini
+    src: roles/root/files/etc/php/5.6/mods-available/ioncube.ini
 - shell: /usr/sbin/phpenmod {{ item }}
   args:
     executable: /bin/bash
@@ -253,7 +269,7 @@
     - zip
 - service:
     enabled: yes
-    name: php7.0-fpm
+    name: php5.6-fpm
     state: restarted
 
 - service:
@@ -310,5 +326,3 @@
     mode: 0644
     owner: root
     src: var/netenberg/fantastico_f3/sources/options/users.txt
-
-- user: name=ubuntu shell=/bin/bash
