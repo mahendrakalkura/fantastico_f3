@@ -1,337 +1,337 @@
 ---
 
-# - apt_key:
-#     id: 4F4EA0AAE5267A6C
-#     keyserver: keyserver.ubuntu.com
-# - apt_repository:
-#     repo: deb http://ppa.launchpad.net/ondrej/php/ubuntu xenial main
-# - apt:
-#     name: "{{ item }}"
-#     update_cache: yes
-#   with_items:
-#     - apache2
-#     - apache2-suexec-custom
-#     - binutils
-#     - build-essential
-#     - ca-certificates
-#     - curl
-#     - gettext
-#     - git
-#     - htop
-#     - libapache2-mod-authnz-external
-#     - libapache2-mod-php5.6
-#     - libapache2-mod-suphp
-#     - libmysqlclient-dev
-#     - mariadb-client
-#     - mariadb-server
-#     - ncdu
-#     - nload
-#     - php5.6
-#     - php5.6-bcmath
-#     - php5.6-bz2
-#     - php5.6-cgi
-#     - php5.6-cli
-#     - php5.6-common
-#     - php5.6-curl
-#     - php5.6-dba
-#     - php5.6-dev
-#     - php5.6-enchant
-#     - php5.6-fpm
-#     - php5.6-gd
-#     - php5.6-gmp
-#     - php5.6-imap
-#     - php5.6-interbase
-#     - php5.6-intl
-#     - php5.6-json
-#     - php5.6-ldap
-#     - php5.6-mbstring
-#     - php5.6-mcrypt
-#     - php5.6-mysql
-#     - php5.6-odbc
-#     - php5.6-opcache
-#     - php5.6-pgsql
-#     - php5.6-phpdbg
-#     - php5.6-pspell
-#     - php5.6-readline
-#     - php5.6-recode
-#     - php5.6-snmp
-#     - php5.6-soap
-#     - php5.6-sqlite3
-#     - php5.6-sybase
-#     - php5.6-tidy
-#     - php5.6-xml
-#     - php5.6-xmlrpc
-#     - php5.6-xsl
-#     - php5.6-zip
-#     - pwauth
-#     - python
-#     - python-pip
-#     - tmux
-#     - tree
-#     - unzip
-#     - vim
-#
-# - pip:
-#     name: "{{ item }}"
-#   with_items:
-#     - mysql-python
-#     - speedtest-cli
-#
-# - blockinfile:
-#     block: "{{ lookup('template', 'etc/hosts') }}"
-#     dest: /etc/hosts
-#
-# - copy:
-#     dest: /etc/inputrc
-#     group: root
-#     mode: 0644
-#     owner: root
-#     src: roles/root/files/etc/inputrc
-#
-# - copy:
-#     dest: /etc/tmux.conf
-#     group: root
-#     mode: 0644
-#     owner: root
-#     src: roles/root/files/etc/tmux.conf
-#
-# - group:
-#     name: "{{ item.username }}"
-#     state: present
-#   with_items: "{{ users }}"
-# - user:
-#     createhome: yes
-#     home: "{{ item.home }}"
-#     password: "{{ item.password|password_hash('sha512') }}"
-#     name: "{{ item.username }}"
-#     group: "{{ item.username }}"
-#     shell: /bin/bash
-#   with_items: "{{ users }}"
-# - file:
-#     group: "{{ item.group }}"
-#     mode: 0755
-#     owner: "{{ item.owner }}"
-#     path: "{{ item.path }}"
-#     state: directory
-#   with_document_roots: "{{ users }}"
-# - template:
-#     dest: "{{ item.home }}/my.cnf"
-#     group: "{{ item.username }}"
-#     mode: 0600
-#     owner: "{{ item.username }}"
-#     src: root/my.cnf
-#   with_items: "{{ users }}"
-#
-# - service:
-#     enabled: yes
-#     name: apache2
-#     state: started
-# - shell: /usr/sbin/a2enmod {{ item }}
-#   args:
-#     executable: /bin/bash
-#   with_items:
-#     - actions
-#     - php5.6
-#     - suexec
-# - copy:
-#     dest: /etc/apache2/ports.conf
-#     group: root
-#     mode: 0644
-#     owner: root
-#     src: roles/root/files/etc/apache2/ports.conf
-# - template:
-#     dest: /etc/apache2/sites-available/000-default.conf
-#     group: root
-#     mode: 0644
-#     owner: root
-#     src: etc/apache2/sites-available/000-default.conf
-# - service:
-#     enabled: yes
-#     name: apache2
-#     state: restarted
-#
-# - service:
-#     enabled: yes
-#     name: mysql
-#     state: started
-# - ignore_errors: true
-#   mysql_user:
-#     host: "{{ item }}"
-#     name: "{{ mysql.user }}"
-#     password: "{{ mysql.password }}"
-#     priv: "*.*:ALL,GRANT"
-#     state: present
-#   with_items:
-#     - localhost
-#     - 127.0.0.1
-#     - ::1
-# - shell: /usr/bin/mysql --execute="FLUSH PRIVILEGES" --unbuffered
-#   args:
-#     executable: /bin/bash
-# - template:
-#     dest: /etc/mysql/my.cnf
-#     group: root
-#     mode: 0600
-#     owner: root
-#     src: etc/mysql/my.cnf
-# - template:
-#     dest: /root/my.cnf
-#     group: root
-#     mode: 0600
-#     owner: root
-#     src: root/my.cnf
-# - mysql_user:
-#     state: absent
-#     user: ""
-# - mysql_db:
-#     db: test
-#     state: absent
-# - ignore_errors: true
-#   mysql_user:
-#     host: "{{ mysql.host }}"
-#     name: "{{ item.username }}"
-#     password: "{{ item.password }}"
-#     priv: "*.*:ALL,GRANT"
-#     state: present
-#   with_items: "{{ users }}"
-# - shell: /usr/bin/mysql --execute="FLUSH PRIVILEGES" --unbuffered
-#   args:
-#     executable: /bin/bash
-# - service:
-#     enabled: yes
-#     name: mysql
-#     state: restarted
-#
-# - service:
-#     enabled: yes
-#     name: php5.6-fpm
-#     state: started
-# - copy:
-#     dest: /etc/php/5.6/apache2/php.ini
-#     group: root
-#     mode: 0644
-#     owner: root
-#     src: roles/root/files/etc/php/5.6/apache2/php.ini
-# - copy:
-#     dest: /etc/php/5.6/cli/php.ini
-#     group: root
-#     mode: 0644
-#     owner: root
-#     src: roles/root/files/etc/php/5.6/cli/php.ini
-# - copy:
-#     dest: /etc/php/5.6/fpm/php.ini
-#     group: root
-#     mode: 0644
-#     owner: root
-#     src: roles/root/files/etc/php/5.6/fpm/php.ini
-# - get_url:
-#     dest: /root/ioncube_loaders_lin_x86-64.tar.gz
-#     group: root
-#     mode: 0644
-#     owner: root
-#     url: http://downloads3.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz
-# - unarchive:
-#     copy: no
-#     dest: /usr/lib/php/20131226
-#     group: root
-#     mode: 0755
-#     owner: root
-#     src: /root/ioncube_loaders_lin_x86-64.tar.gz
+- apt_key:
+    id: 4F4EA0AAE5267A6C
+    keyserver: keyserver.ubuntu.com
+- apt_repository:
+    repo: deb http://ppa.launchpad.net/ondrej/php/ubuntu xenial main
+- apt:
+    name: "{{ item }}"
+    update_cache: yes
+  with_items:
+    - apache2
+    - apache2-suexec-custom
+    - binutils
+    - build-essential
+    - ca-certificates
+    - curl
+    - gettext
+    - git
+    - htop
+    - libapache2-mod-authnz-external
+    - libapache2-mod-php5.6
+    - libapache2-mod-suphp
+    - libmysqlclient-dev
+    - mariadb-client
+    - mariadb-server
+    - ncdu
+    - nload
+    - php5.6
+    - php5.6-bcmath
+    - php5.6-bz2
+    - php5.6-cgi
+    - php5.6-cli
+    - php5.6-common
+    - php5.6-curl
+    - php5.6-dba
+    - php5.6-dev
+    - php5.6-enchant
+    - php5.6-fpm
+    - php5.6-gd
+    - php5.6-gmp
+    - php5.6-imap
+    - php5.6-interbase
+    - php5.6-intl
+    - php5.6-json
+    - php5.6-ldap
+    - php5.6-mbstring
+    - php5.6-mcrypt
+    - php5.6-mysql
+    - php5.6-odbc
+    - php5.6-opcache
+    - php5.6-pgsql
+    - php5.6-phpdbg
+    - php5.6-pspell
+    - php5.6-readline
+    - php5.6-recode
+    - php5.6-snmp
+    - php5.6-soap
+    - php5.6-sqlite3
+    - php5.6-sybase
+    - php5.6-tidy
+    - php5.6-xml
+    - php5.6-xmlrpc
+    - php5.6-xsl
+    - php5.6-zip
+    - pwauth
+    - python
+    - python-pip
+    - tmux
+    - tree
+    - unzip
+    - vim
+
+- pip:
+    name: "{{ item }}"
+  with_items:
+    - mysql-python
+    - speedtest-cli
+
+- blockinfile:
+    block: "{{ lookup('template', 'etc/hosts') }}"
+    dest: /etc/hosts
+
+- copy:
+    dest: /etc/inputrc
+    group: root
+    mode: 0644
+    owner: root
+    src: roles/root/files/etc/inputrc
+
+- copy:
+    dest: /etc/tmux.conf
+    group: root
+    mode: 0644
+    owner: root
+    src: roles/root/files/etc/tmux.conf
+
+- group:
+    name: "{{ item.username }}"
+    state: present
+  with_items: "{{ users }}"
+- user:
+    createhome: yes
+    home: "{{ item.home }}"
+    password: "{{ item.password|password_hash('sha512') }}"
+    name: "{{ item.username }}"
+    group: "{{ item.username }}"
+    shell: /bin/bash
+  with_items: "{{ users }}"
+- file:
+    group: "{{ item.group }}"
+    mode: 0755
+    owner: "{{ item.owner }}"
+    path: "{{ item.path }}"
+    state: directory
+  with_document_roots: "{{ users }}"
+- template:
+    dest: "{{ item.home }}/my.cnf"
+    group: "{{ item.username }}"
+    mode: 0600
+    owner: "{{ item.username }}"
+    src: root/my.cnf
+  with_items: "{{ users }}"
+
+- service:
+    enabled: yes
+    name: apache2
+    state: started
+- shell: /usr/sbin/a2enmod {{ item }}
+  args:
+    executable: /bin/bash
+  with_items:
+    - actions
+    - php5.6
+    - suexec
+- copy:
+    dest: /etc/apache2/ports.conf
+    group: root
+    mode: 0644
+    owner: root
+    src: roles/root/files/etc/apache2/ports.conf
+- template:
+    dest: /etc/apache2/sites-available/000-default.conf
+    group: root
+    mode: 0644
+    owner: root
+    src: etc/apache2/sites-available/000-default.conf
+- service:
+    enabled: yes
+    name: apache2
+    state: restarted
+
+- service:
+    enabled: yes
+    name: mysql
+    state: started
+- ignore_errors: true
+  mysql_user:
+    host: "{{ item }}"
+    name: "{{ mysql.user }}"
+    password: "{{ mysql.password }}"
+    priv: "*.*:ALL,GRANT"
+    state: present
+  with_items:
+    - localhost
+    - 127.0.0.1
+    - ::1
+- shell: /usr/bin/mysql --execute="FLUSH PRIVILEGES" --unbuffered
+  args:
+    executable: /bin/bash
+- template:
+    dest: /etc/mysql/my.cnf
+    group: root
+    mode: 0600
+    owner: root
+    src: etc/mysql/my.cnf
+- template:
+    dest: /root/my.cnf
+    group: root
+    mode: 0600
+    owner: root
+    src: root/my.cnf
+- mysql_user:
+    state: absent
+    user: ""
+- mysql_db:
+    db: test
+    state: absent
+- ignore_errors: true
+  mysql_user:
+    host: "{{ mysql.host }}"
+    name: "{{ item.username }}"
+    password: "{{ item.password }}"
+    priv: "*.*:ALL,GRANT"
+    state: present
+  with_items: "{{ users }}"
+- shell: /usr/bin/mysql --execute="FLUSH PRIVILEGES" --unbuffered
+  args:
+    executable: /bin/bash
+- service:
+    enabled: yes
+    name: mysql
+    state: restarted
+
+- service:
+    enabled: yes
+    name: php5.6-fpm
+    state: started
+- copy:
+    dest: /etc/php/5.6/apache2/php.ini
+    group: root
+    mode: 0644
+    owner: root
+    src: roles/root/files/etc/php/5.6/apache2/php.ini
+- copy:
+    dest: /etc/php/5.6/cli/php.ini
+    group: root
+    mode: 0644
+    owner: root
+    src: roles/root/files/etc/php/5.6/cli/php.ini
+- copy:
+    dest: /etc/php/5.6/fpm/php.ini
+    group: root
+    mode: 0644
+    owner: root
+    src: roles/root/files/etc/php/5.6/fpm/php.ini
+- get_url:
+    dest: /root/ioncube_loaders_lin_x86-64.tar.gz
+    group: root
+    mode: 0644
+    owner: root
+    url: http://downloads3.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz
+- unarchive:
+    copy: no
+    dest: /usr/lib/php/20131226
+    group: root
+    mode: 0755
+    owner: root
+    src: /root/ioncube_loaders_lin_x86-64.tar.gz
 - copy:
     dest: /etc/php/5.6/mods-available/ioncube.ini
     group: root
     mode: 0644
     owner: root
     src: roles/root/files/etc/php/5.6/mods-available/ioncube.ini
-# - shell: /usr/sbin/phpenmod {{ item }}
-#   args:
-#     executable: /bin/bash
-#   with_items:
-#     - bcmath
-#     - bz2
-#     - curl
-#     - dba
-#     - enchant
-#     - gd
-#     - gmp
-#     - imap
-#     - interbase
-#     - intl
-#     - ioncube
-#     - json
-#     - ldap
-#     - mbstring
-#     - mcrypt
-#     - odbc
-#     - opcache
-#     - pgsql
-#     - pspell
-#     - readline
-#     - recode
-#     - snmp
-#     - soap
-#     - sqlite3
-#     - tidy
-#     - xml
-#     - xmlrpc
-#     - xsl
-#     - zip
+- shell: /usr/sbin/phpenmod {{ item }}
+  args:
+    executable: /bin/bash
+  with_items:
+    - bcmath
+    - bz2
+    - curl
+    - dba
+    - enchant
+    - gd
+    - gmp
+    - imap
+    - interbase
+    - intl
+    - ioncube
+    - json
+    - ldap
+    - mbstring
+    - mcrypt
+    - odbc
+    - opcache
+    - pgsql
+    - pspell
+    - readline
+    - recode
+    - snmp
+    - soap
+    - sqlite3
+    - tidy
+    - xml
+    - xmlrpc
+    - xsl
+    - zip
 - service:
     enabled: yes
     name: php5.6-fpm
     state: restarted
-#
-# - service:
-#     enabled: yes
-#     name: apache2
-#     state: restarted
-#
-# - file:
-#     group: root
-#     mode: 0755
-#     owner: root
-#     path: /var/netenberg/fantastico_f3
-#     state: directory
-# - get_url:
-#     dest: /var/netenberg/fantastico_f3/sources.tar.bz2
-#     group: root
-#     mode: 0644
-#     owner: root
-#     url: http://174.120.165.106/fantastico_f3/sources.tar.bz2
-# - unarchive:
-#     copy: no
-#     dest: /var/netenberg/fantastico_f3
-#     group: root
-#     mode: 0755
-#     owner: root
-#     src: /var/netenberg/fantastico_f3/sources.tar.bz2
-# - file:
-#     group: root
-#     mode: 0755
-#     owner: root
-#     path: /var/netenberg/fantastico_f3/sources/options
-#     state: directory
-# - copy:
-#     dest: /var/netenberg/fantastico_f3/sources/options/apache.txt
-#     group: root
-#     mode: 0644
-#     owner: root
-#     src: roles/root/files/var/netenberg/fantastico_f3/sources/options/apache.txt
-# - copy:
-#     dest: /var/netenberg/fantastico_f3/sources/options/mysql.txt
-#     group: root
-#     mode: 0644
-#     owner: root
-#     src: roles/root/files/var/netenberg/fantastico_f3/sources/options/mysql.txt
-# - copy:
-#     dest: /var/netenberg/fantastico_f3/sources/options/php.txt
-#     group: root
-#     mode: 0644
-#     owner: root
-#     src: roles/root/files/var/netenberg/fantastico_f3/sources/options/php.txt
-# - template:
-#     dest: /var/netenberg/fantastico_f3/sources/options/users.txt
-#     group: root
-#     mode: 0644
-#     owner: root
-#     src: var/netenberg/fantastico_f3/sources/options/users.txt
+
+- service:
+    enabled: yes
+    name: apache2
+    state: restarted
+
+- file:
+    group: root
+    mode: 0755
+    owner: root
+    path: /var/netenberg/fantastico_f3
+    state: directory
+- get_url:
+    dest: /var/netenberg/fantastico_f3/sources.tar.bz2
+    group: root
+    mode: 0644
+    owner: root
+    url: http://174.120.165.106/fantastico_f3/sources.tar.bz2
+- unarchive:
+    copy: no
+    dest: /var/netenberg/fantastico_f3
+    group: root
+    mode: 0755
+    owner: root
+    src: /var/netenberg/fantastico_f3/sources.tar.bz2
+- file:
+    group: root
+    mode: 0755
+    owner: root
+    path: /var/netenberg/fantastico_f3/sources/options
+    state: directory
+- copy:
+    dest: /var/netenberg/fantastico_f3/sources/options/apache.txt
+    group: root
+    mode: 0644
+    owner: root
+    src: roles/root/files/var/netenberg/fantastico_f3/sources/options/apache.txt
+- copy:
+    dest: /var/netenberg/fantastico_f3/sources/options/mysql.txt
+    group: root
+    mode: 0644
+    owner: root
+    src: roles/root/files/var/netenberg/fantastico_f3/sources/options/mysql.txt
+- copy:
+    dest: /var/netenberg/fantastico_f3/sources/options/php.txt
+    group: root
+    mode: 0644
+    owner: root
+    src: roles/root/files/var/netenberg/fantastico_f3/sources/options/php.txt
+- template:
+    dest: /var/netenberg/fantastico_f3/sources/options/users.txt
+    group: root
+    mode: 0644
+    owner: root
+    src: var/netenberg/fantastico_f3/sources/options/users.txt
