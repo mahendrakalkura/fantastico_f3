@@ -1,24 +1,13 @@
 ---
 
-- copy: >
-    dest=/etc/inputrc
-    group=root
-    mode=0644
-    owner=root
-    src=roles/root/files/etc/inputrc
-
-- copy: >
-    dest=/etc/tmux.conf
-    group=root
-    mode=0644
-    owner=root
-    src=roles/root/files/etc/tmux.conf
-
-- apt_key: id=4F4EA0AAE5267A6C keyserver=keyserver.ubuntu.com state=present
-
-- apt_repository: repo='deb http://ppa.launchpad.net/ondrej/php/ubuntu xenial main' state=present update_cache=yes
-
-- apt: pkg={{ item }} state=installed update-cache=yes
+- apt_key:
+    id: 4F4EA0AAE5267A6C
+    keyserver: keyserver.ubuntu.com
+- apt_repository:
+    repo: deb http://ppa.launchpad.net/ondrej/php/ubuntu xenial main
+- apt:
+    name: "{{ item }}"
+    update_cache: yes
   with_items:
     - apache2
     - binutils
@@ -78,148 +67,206 @@
     - unzip
     - vim
 
-- pip: name={{ item }}
+- pip:
+    name: "{{ item }}"
   with_items:
     - mysql-python
     - speedtest-cli
 
-- service: enabled=yes name=apache2 state=started
+- shell: |
+    /usr/bin/grep 'administrators.fantastico_f3.com' /etc/hosts          \
+    ||                                                                   \
+    /bin/echo '127.0.0.1 administrators.fantastico_f3.com' >> /etc/hosts
+  args:
+    chdir: /etc
+    executable: /bin/bash
 
-- copy: >
-    dest=/etc/apache2/sites-available/000-default.conf
-    group=root
-    mode=0644
-    owner=root
-    src=roles/root/files/etc/apache2/sites-available/000-default.conf
+- shell: |
+    /usr/bin/grep 'visitors.fantastico_f3.com' /etc/hosts          \
+    ||                                                             \
+    /bin/echo '127.0.0.1 visitors.fantastico_f3.com' >> /etc/hosts
+  args:
+    executable: /bin/bash
 
-- service: enabled=yes name=apache2 state=restarted
+- shell: |
+    /usr/bin/grep 'fantastico_f3.com' /etc/hosts          \
+    ||                                                    \
+    /bin/echo '127.0.0.1 fantastico_f3.com' >> /etc/hosts
+  args:
+    executable: /bin/bash
 
-- service: enabled=yes name=mysql state=started
+- copy:
+    dest: /etc/inputrc
+    group: root
+    mode: 0644
+    owner: root
+    src: roles/root/files/etc/inputrc
 
+- copy:
+    dest: /etc/tmux.conf
+    group: root
+    mode: 0644
+    owner: root
+    src: roles/root/files/etc/tmux.conf
+
+- service:
+    enabled: yes
+    name: apache2
+    state: started
+- copy:
+    dest: /etc/apache2/sites-available/000-default.conf
+    group: root
+    mode: 0644
+    owner: root
+    src: roles/root/files/etc/apache2/sites-available/000-default.conf
+- service:
+    enabled: yes
+    name: apache2
+    state: restarted
+
+- service:
+    enabled: yes
+    name: mysql
+    state: started
 - ignore_errors: true
-  mysql_user: >
-    host={{ item }}
-    name={{ mysql_user }}
-    password={{ mysql_password }}
-    priv=*.*:ALL,GRANT
-    state=present
+  mysql_user:
+    host: "{{ item }}"
+    name: "{{ mysql_user }}"
+    password: "{{ mysql_password }}"
+    priv: '*.*:ALL,GRANT'
+    state: present
   with_items:
     - localhost
     - 127.0.0.1
     - ::1
+- shell: /usr/bin/mysql --execute='FLUSH PRIVILEGES' --unbuffered
+  args:
+    executable: /bin/bash
+- template:
+    dest: /root/.my.cnf
+    group: root
+    mode: 0600
+    owner: root
+    src: root/.my.cnf
+- template:
+    dest: /etc/mysql/my.cnf
+    group: root
+    mode: 0600
+    owner: root
+    src: etc/mysql/my.cnf
+- mysql_user:
+    state: absent
+    user: ''
+- mysql_db:
+    db: test
+    state: absent
+- shell: /usr/bin/mysql --execute='FLUSH PRIVILEGES' --unbuffered
+  args:
+    executable: /bin/bash
+- service:
+    enabled: yes
+    name: mysql
+    state: restarted
 
-- command: 'mysql -ne "{{ item }}"'
+- service:
+    enabled: yes
+    name: php7.0-fpm
+    state: started
+- copy:
+    dest: /etc/php/7.0/apache2/php.ini
+    group: root
+    mode: 0644
+    owner: root
+    src: roles/root/files/etc/php/7.0/apache2/php.ini
+- copy:
+    dest: /etc/php/7.0/cli/php.ini
+    group: root
+    mode: 0644
+    owner: root
+    src: roles/root/files/etc/php/7.0/cli/php.ini
+- copy:
+    dest: /etc/php/7.0/fpm/php.ini
+    group: root
+    mode: 0644
+    owner: root
+    src: roles/root/files/etc/php/7.0/fpm/php.ini
+- shell: /usr/sbin/phpenmod "{{ item }}"
+  args:
+    executable: /bin/bash
   with_items:
-    - FLUSH PRIVILEGES
+    - bcmath
+    - bz2
+    - curl
+    - dba
+    - enchant
+    - gd
+    - gmp
+    - imap
+    - interbase
+    - intl
+    - json
+    - ldap
+    - mbstring
+    - mcrypt
+    - odbc
+    - opcache
+    - pgsql
+    - pspell
+    - readline
+    - recode
+    - snmp
+    - soap
+    - sqlite3
+    - tidy
+    - xml
+    - xmlrpc
+    - xsl
+    - zip
+- service:
+    enabled: yes
+    name: php7.0-fpm
+    state: restarted
 
-- template: >
-    dest=/root/.my.cnf
-    group=root
-    mode=0600
-    owner=root
-    src=root/.my.cnf
-
-- template: >
-    dest=/etc/mysql/my.cnf
-    group=root
-    mode=0600
-    owner=root
-    src=etc/mysql/my.cnf
-
-- action: >
-    mysql_user
-    user=""
-    state=absent
-
-- action: >
-    mysql_db
-    db=test
-    state=absent
-
-- command: 'mysql -ne "{{ item }}"'
-  with_items:
-    - FLUSH PRIVILEGES
-
-- service: enabled=yes name=mysql state=restarted
-
-- service: enabled=yes name=php7.0-fpm state=started
-
-- copy: >
-    dest=/etc/php/7.0/apache2/php.ini
-    group=root
-    mode=0644
-    owner=root
-    src=roles/root/files/etc/php/7.0/apache2/php.ini
-- copy: >
-    dest=/etc/php/7.0/cli/php.ini
-    group=root
-    mode=0644
-    owner=root
-    src=roles/root/files/etc/php/7.0/cli/php.ini
-- copy: >
-    dest=/etc/php/7.0/fpm/php.ini
-    group=root
-    mode=0644
-    owner=root
-    src=roles/root/files/etc/php/7.0/fpm/php.ini
-
-- shell: phpenmod bcmath bz2 curl dba enchant gd gmp imap interbase intl json ldap mbstring mcrypt odbc opcache pgsql pspell readline recode snmp soap sqlite3 tidy xml xmlrpc xsl zip
+- shell: /bin/mkdir --parents /var/netenberg/fantastico_f3
   args:
     executable: /bin/bash
-
-- service: enabled=yes name=php7.0-fpm state=restarted
-
-- shell: grep 'administrators.fantastico_f3.com' /etc/hosts || echo '127.0.0.1 administrators.fantastico_f3.com' >> /etc/hosts
+- shell: /usr/bin/curl --remote-name http://174.120.165.106/fantastico_f3/sources.tar.bz2
   args:
+    chdir: /var/netenberg/fantastico_f3
     executable: /bin/bash
-
-- shell: grep 'visitors.fantastico_f3.com' /etc/hosts || echo '127.0.0.1 visitors.fantastico_f3.com' >> /etc/hosts
+- shell: /bin/tar --bzip2 --extract --file sources.tar.bz2
   args:
+    chdir: /var/netenberg/fantastico_f3
     executable: /bin/bash
-
-- shell: grep 'ubuntu.fantastico_f3.com' /etc/hosts || echo '127.0.0.1 ubuntu.fantastico_f3.com' >> /etc/hosts
-  args:
-    executable: /bin/bash
-
-- shell: mkdir --parents /var/netenberg/fantastico_f3
-  args:
-    executable: /bin/bash
-
-- shell: cd /var/netenberg/fantastico_f3 && curl -O http://174.120.165.106/fantastico_f3/sources.tar.bz2
-  args:
-    executable: /bin/bash
-
-- shell: cd /var/netenberg/fantastico_f3 && tar --bzip2 --extract --file sources.tar.bz2
-  args:
-    executable: /bin/bash
-
-- shell: mkdir --parents /var/netenberg/fantastico_f3/sources/options
-  args:
-    executable: /bin/bash
-
-- copy: >
-    dest=/var/netenberg/fantastico_f3/sources/options/apache.txt
-    group=root
-    mode=0644
-    owner=root
-    src=roles/root/files/var/netenberg/fantastico_f3/sources/options/apache.txt
-- copy: >
-    dest=/var/netenberg/fantastico_f3/sources/options/mysql.txt
-    group=root
-    mode=0644
-    owner=root
-    src=roles/root/files/var/netenberg/fantastico_f3/sources/options/mysql.txt
-- copy: >
-    dest=/var/netenberg/fantastico_f3/sources/options/php.txt
-    group=root
-    mode=0644
-    owner=root
-    src=roles/root/files/var/netenberg/fantastico_f3/sources/options/php.txt
-- copy: >
-    dest=/var/netenberg/fantastico_f3/sources/options/users.txt
-    group=root
-    mode=0644
-    owner=root
-    src=roles/root/files/var/netenberg/fantastico_f3/sources/options/users.txt
+- file:
+    group: root
+    mode: 0755
+    owner: root
+    path: /var/netenberg/fantastico_f3/sources/options
+    state: directory
+- copy:
+    dest: /var/netenberg/fantastico_f3/sources/options/apache.txt
+    group: root
+    mode: 0644
+    owner: root
+    src: roles/root/files/var/netenberg/fantastico_f3/sources/options/apache.txt
+- copy:
+    dest: /var/netenberg/fantastico_f3/sources/options/mysql.txt
+    group: root
+    mode: 0644
+    owner: root
+    src: roles/root/files/var/netenberg/fantastico_f3/sources/options/mysql.txt
+- copy:
+    dest: /var/netenberg/fantastico_f3/sources/options/php.txt
+    group: root
+    mode: 0644
+    owner: root
+    src: roles/root/files/var/netenberg/fantastico_f3/sources/options/php.txt
+- copy:
+    dest: /var/netenberg/fantastico_f3/sources/options/users.txt
+    group: root
+    mode: 0644
+    owner: root
+    src: roles/root/files/var/netenberg/fantastico_f3/sources/options/users.txt
 
 - user: name=ubuntu shell=/bin/bash

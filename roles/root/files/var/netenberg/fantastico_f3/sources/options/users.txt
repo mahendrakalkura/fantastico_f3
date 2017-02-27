@@ -1,1 +1,1 @@
-ubuntu:/home/ubuntu:ubuntu.fantastico_f3.com:/home/ubuntu/public_html
+ubuntu:/home/ubuntu:fantastico_f3.com:/home/ubuntu/public_html
