@@ -1,3 +1,4 @@
-mysql_hostname: localhost
+mysql_host: localhost
 mysql_password: root
-mysql_username: root
+mysql_port: 3306
+mysql_user: root
