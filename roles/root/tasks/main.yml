@@ -10,6 +10,7 @@
     update_cache: yes
   with_items:
     - apache2
+    - apache2-suexec-custom
     - binutils
     - build-essential
     - ca-certificates
@@ -17,6 +18,7 @@
     - gettext
     - git
     - htop
+    - libapache2-mod-authnz-external
     - libapache2-mod-php7.0
     - libmysqlclient-dev
     - mariadb-client
@@ -60,6 +62,7 @@
     - php7.0-xmlrpc
     - php7.0-xsl
     - php7.0-zip
+    - pwauth
     - python
     - python-pip
     - tmux
@@ -74,26 +77,27 @@
     - speedtest-cli
 
 - shell: |
-    /usr/bin/grep 'administrators.fantastico_f3.com' /etc/hosts          \
-    ||                                                                   \
-    /bin/echo '127.0.0.1 administrators.fantastico_f3.com' >> /etc/hosts
+    /bin/grep "{{ domains.administrators }}" /etc/hosts              \
+    ||                                                               \
+    /bin/echo "127.0.0.1 {{ domains.administrators }}" >> /etc/hosts
   args:
     chdir: /etc
     executable: /bin/bash
 
 - shell: |
-    /usr/bin/grep 'visitors.fantastico_f3.com' /etc/hosts          \
-    ||                                                             \
-    /bin/echo '127.0.0.1 visitors.fantastico_f3.com' >> /etc/hosts
+    /bin/grep "{{ domains.visitors }}" /etc/hosts              \
+    ||                                                         \
+    /bin/echo "127.0.0.1 {{ domains.visitors }}" >> /etc/hosts
   args:
     executable: /bin/bash
 
 - shell: |
-    /usr/bin/grep 'fantastico_f3.com' /etc/hosts          \
+    /bin/grep "{{ item.domain }}" /etc/hosts              \
     ||                                                    \
-    /bin/echo '127.0.0.1 fantastico_f3.com' >> /etc/hosts
+    /bin/echo "127.0.0.1 {{ item.domain }}" >> /etc/hosts
   args:
     executable: /bin/bash
+  with_items: "{{ users }}"
 
 - copy:
     dest: /etc/inputrc
@@ -113,12 +117,17 @@
     enabled: yes
     name: apache2
     state: started
-- copy:
+- shell: /usr/sbin/a2enmod {{ item }}
+  args:
+    executable: /bin/bash
+  with_items:
+    - suexec
+- template:
     dest: /etc/apache2/sites-available/000-default.conf
     group: root
     mode: 0644
     owner: root
-    src: roles/root/files/etc/apache2/sites-available/000-default.conf
+    src: etc/apache2/sites-available/000-default.conf
 - service:
     enabled: yes
     name: apache2
@@ -131,15 +140,15 @@
 - ignore_errors: true
   mysql_user:
     host: "{{ item }}"
-    name: "{{ mysql_user }}"
-    password: "{{ mysql_password }}"
-    priv: '*.*:ALL,GRANT'
+    name: "{{ mysql.user }}"
+    password: "{{ mysql.password }}"
+    priv: "*.*:ALL,GRANT"
     state: present
   with_items:
     - localhost
     - 127.0.0.1
     - ::1
-- shell: /usr/bin/mysql --execute='FLUSH PRIVILEGES' --unbuffered
+- shell: /usr/bin/mysql --execute="FLUSH PRIVILEGES" --unbuffered
   args:
     executable: /bin/bash
 - template:
@@ -156,11 +165,11 @@
     src: etc/mysql/my.cnf
 - mysql_user:
     state: absent
-    user: ''
+    user: ""
 - mysql_db:
     db: test
     state: absent
-- shell: /usr/bin/mysql --execute='FLUSH PRIVILEGES' --unbuffered
+- shell: /usr/bin/mysql --execute="FLUSH PRIVILEGES" --unbuffered
   args:
     executable: /bin/bash
 - service:
@@ -190,7 +199,26 @@
     mode: 0644
     owner: root
     src: roles/root/files/etc/php/7.0/fpm/php.ini
-- shell: /usr/sbin/phpenmod "{{ item }}"
+- get_url:
+    dest: /root/ioncube_loaders_lin_x86-64.tar.gz
+    group: root
+    mode: 0644
+    owner: root
+    url: http://downloads3.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz
+- unarchive:
+    copy: no
+    dest: /usr/lib/php/20151012
+    group: root
+    mode: 0755
+    owner: root
+    src: /root/ioncube_loaders_lin_x86-64.tar.gz
+- copy:
+    dest: /etc/php/7.0/mods-available/ioncube.ini
+    group: root
+    mode: 0644
+    owner: root
+    src: roles/root/files/etc/php/7.0/mods-available/ioncube.ini
+- shell: /usr/sbin/phpenmod {{ item }}
   args:
     executable: /bin/bash
   with_items:
@@ -204,6 +232,7 @@
     - imap
     - interbase
     - intl
+    - ioncube
     - json
     - ldap
     - mbstring
@@ -225,6 +254,11 @@
 - service:
     enabled: yes
     name: php7.0-fpm
+    state: restarted
+
+- service:
+    enabled: yes
+    name: apache2
     state: restarted
 
 - file:
@@ -270,11 +304,11 @@
     mode: 0644
     owner: root
     src: roles/root/files/var/netenberg/fantastico_f3/sources/options/php.txt
-- copy:
+- template:
     dest: /var/netenberg/fantastico_f3/sources/options/users.txt
     group: root
     mode: 0644
     owner: root
-    src: roles/root/files/var/netenberg/fantastico_f3/sources/options/users.txt
+    src: var/netenberg/fantastico_f3/sources/options/users.txt
 
 - user: name=ubuntu shell=/bin/bash

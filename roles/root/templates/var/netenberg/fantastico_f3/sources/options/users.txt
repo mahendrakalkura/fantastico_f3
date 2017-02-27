@@ -1,0 +1,3 @@
+{% for user in users %}
+{{ user.name }}:{{ user.home }}:{{ user.domain }}:{{ user.document_root }}
+{% endfor %}
