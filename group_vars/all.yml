@@ -1,7 +1,3 @@
-domains:
-  administrators: administrators.fantastico_f3.com
-  visitors: visitors.fantastico_f3.com
-
 mysql:
   host: localhost
   password: root
@@ -9,15 +5,21 @@ mysql:
   user: root
 
 users:
-  - domain: domain-1.com
-    document_root: /home/ubuntu/domain-1.com
-    home: /home/ubuntu
-    name: ubuntu
-  - domain: domain-2.com
-    document_root: /home/ubuntu/domain-2.com
-    home: /home/ubuntu
-    name: ubuntu
-  - domain: domain-3.com
-    document_root: /home/ubuntu/domain-3.com
-    home: /home/ubuntu
-    name: ubuntu
+  - domains_and_document_roots:
+      domain-1.com: /home/user_1/domain-1.com
+      sub-domain.domain-1.com: /home/user_1/domain-1.com/sub-domain
+    home: /home/user_1
+    password: user_1
+    username: user_1
+  - domains_and_document_roots:
+      domain-2.com: /home/user_2/domain-2.com
+      sub-domain.domain-2.com: /home/user_2/domain-2.com/sub-domain
+    home: /home/user_2
+    password: user_2
+    username: user_2
+  - domains_and_document_roots:
+      domain-3.com: /home/user_3/domain-3.com
+      sub-domain.domain-3.com: /home/user_3/domain-3.com/sub-domain
+    home: /home/user_3
+    password: user_3
+    username: user_3
