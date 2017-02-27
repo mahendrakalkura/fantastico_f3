@@ -14,7 +14,9 @@ $ git clone --recursive git@github.com:mahendrakalkura/fantastico_f3.git
 How to use?
 ===========
 
-# **Step 1:** Create your inventory file
+## **Step 1:**
+
+Create your inventory file.
 
 ```
 $ touch inventory
@@ -29,7 +31,9 @@ ZZZ.ZZZ.ZZZ.ZZZ ansible_ssh_user=root
 
 *Note:* Ensure that all of the servers listed in your inventory file have valid licenses.
 
-# **Step 2:** Customize the domain names (in `/group_vars/all.yml`)
+## **Step 2:**
+
+Customize the domain names (in `/group_vars/all.yml`).
 
 * **administrators.fantastico_f3.com:**
     * This is used for the administrators panel of **Fantastico F3**. This is the section where you (the host of the server) will manage **Fantastico F3** as a whole. i.e.: keep it updated, check up on scripts, manage feature sets, etc. It must be run as root and therefore suitably protected by means of secure authentication/authorization.
@@ -39,16 +43,37 @@ ZZZ.ZZZ.ZZZ.ZZZ ansible_ssh_user=root
     * These are the public websites into which **Fantastico F3** will install scripts.
     * You can add as many domains as you want.
 
-# **Step 3:** Execute the playbook
+## **Step 3:**
+
+Execute the playbook.
 
 ```
 $ ansible-playbook --inventory inventory playbook.yml
 ```
 
-# **Step 4:** Set the `root` password
+## **Step 4:**
 
-# **Step 5:** Set the `ubuntu` password
+Set the `root` password.
 
-# **Step 6:** Go to `http://{{ domains.administrators }}`
+```
+# passwd root
+```
 
-# **Step 7:** Go to `http://{{ domains.visitors }}`
+## **Step 5:**
+
+Set the `ubuntu` password.
+
+```
+# passwd ubuntu
+```
+
+## **Step 6:**
+
+Open the following URLs in your browser.
+
+* `http://{{ domains.administrators }}`
+    * **Username:** `root`
+    * **Password:** (see **Step 4**)
+* `http://{{ domains.visitors }}`
+    * **Username:** `Ubuntu`
+    * **Password:** (see **Step 5**)
