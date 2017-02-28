@@ -26,9 +26,12 @@ $ touch inventory
 
 ```
 [server]
-XXX.XXX.XXX.XXX ansible_ssh_user=root
-YYY.YYY.YYY.YYY ansible_ssh_user=root
-ZZZ.ZZZ.ZZZ.ZZZ ansible_ssh_user=root
+AAA.AAA.AAA.AAA ansible_ssh_user=root
+BBB.BBB.BBB.BBB ansible_ssh_user=root
+CCC.CCC.CCC.CCC ansible_ssh_user=root
+...
+...
+...
 ```
 
 **Note:** Ensure that all of the servers listed in your inventory file have valid licenses.
@@ -53,11 +56,11 @@ $ ansible-playbook --inventory inventory playbook.yml
 
 Open the following URLs in your browser.
 
-* `http://XXX.XXX.XXX.XXX:8001`
-    * **Username:** `{{ mod_auth_digest.administrators.username }}`
-    * **Password:** `{{ mod_auth_digest.administrators.password }}`
+* `http://AAA.AAA.AAA.AAA:{{ apache2.ports.administrators }}`
+    * **Username:** `{{ apache2.mod_auth_digest.administrators.username }}`
+    * **Password:** `{{ apache2.mod_auth_digest.administrators.password }}`
     * **Reference:** `group_vars/all.yml`
-* `http://XXX.XXX.XXX.XXX:8002`
-    * **Username:** `{{ mod_auth_digest.visitors.username }}`
-    * **Password:** `{{ mod_auth_digest.visitors.password }}`
+* `http://AAA.AAA.AAA.AAA:{{ apache2.ports.visitors }}`
+    * **Username:** `{{ apache2.mod_auth_digest.visitors.username }}`
+    * **Password:** `{{ apache2.mod_auth_digest.visitors.password }}`
     * **Reference:** `group_vars/all.yml`
