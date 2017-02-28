@@ -22,6 +22,8 @@ Create your inventory file.
 $ touch inventory
 ```
 
+**Example:**
+
 ```
 [server]
 XXX.XXX.XXX.XXX ansible_ssh_user=root
