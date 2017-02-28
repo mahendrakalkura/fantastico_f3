@@ -1,7 +1,7 @@
 Requirements
 ============
 
-* [Ansible](https://www.ansible.com/)
+* [Ansible](http://docs.ansible.com/ansible/)
 * [https://netenberg.com/#fantastico-standalone.html](https://netenberg.com/#fantastico-standalone.html)
 
 How to install?
@@ -29,19 +29,15 @@ YYY.YYY.YYY.YYY ansible_ssh_user=root
 ZZZ.ZZZ.ZZZ.ZZZ ansible_ssh_user=root
 ```
 
-*Note:* Ensure that all of the servers listed in your inventory file have valid licenses.
+**Note:** Ensure that all of the servers listed in your inventory file have valid licenses.
 
 ## **Step 2:**
 
-Customize the domain names (in `/group_vars/all.yml`).
+Review the configurable parameters.
 
-* **administrators.fantastico_f3.com:**
-    * This is used for the administrators panel of **Fantastico F3**. This is the section where you (the host of the server) will manage **Fantastico F3** as a whole. i.e.: keep it updated, check up on scripts, manage feature sets, etc. It must be run as root and therefore suitably protected by means of secure authentication/authorization.
-* **visitors.fantastico_f3.com**:
-    * This is used for the visitors panel of **Fantastico F3**. This is the section where your users will install scripts.
-* **domain-1.com**, **domain-2.com**, **domain-3.com**
-    * These are the public websites into which **Fantastico F3** will install scripts.
-    * You can add as many domains as you want.
+```
+$ cat group_vars/all.yml
+```
 
 ## **Step 3:**
 
@@ -71,9 +67,9 @@ Set the `ubuntu` password.
 
 Open the following URLs in your browser.
 
-* `http://{{ domains.administrators }}`
+* `http://XXX.XXX.XXX.XXX:8001`
     * **Username:** `root`
     * **Password:** (see **Step 4**)
-* `http://{{ domains.visitors }}`
-    * **Username:** `Ubuntu`
+* `http://XXX.XXX.XXX.XXX:8002`
+    * **Username:** `ubuntu`
     * **Password:** (see **Step 5**)
