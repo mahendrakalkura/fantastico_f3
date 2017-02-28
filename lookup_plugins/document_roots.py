@@ -14,12 +14,7 @@ except ImportError:
 class LookupModule(LookupBase):
 
     def run(self, terms, **kwargs):
-        items = []
-        for user in terms:
-            for domain, document_root in user['domains_and_document_roots'].items():
-                items.append({
-                    'group': user['username'],
-                    'owner': user['username'],
-                    'path': document_root,
-                })
-        return self._flatten(items)
+        document_roots = []
+        for term in terms:
+            document_roots.append(term['document_root'])
+        return self._flatten(document_roots)
