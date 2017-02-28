@@ -51,7 +51,6 @@
     - php5.6-pspell
     - php5.6-readline
     - php5.6-recode
-    - php5.6-snmp
     - php5.6-soap
     - php5.6-sqlite3
     - php5.6-sybase
@@ -96,7 +95,7 @@
     owner: ubuntu
     path: "{{ item }}"
     state: directory
-  with_document_roots: "{{ domains_and_document_roots }}"
+  with_document_roots: "{{ apache2.domains_and_document_roots }}"
 
 - systemd:
     daemon_reload: yes
@@ -121,12 +120,12 @@
     mode: 0644
     owner: root
     src: etc/apache2/sites-available/000-default.conf.visitors
-- copy:
+- template:
     dest: /etc/apache2/ports.conf
     group: root
     mode: 0644
     owner: root
-    src: roles/root/files/etc/apache2/ports.conf
+    src: etc/apache2/ports.conf
 - shell: /usr/sbin/a2enmod {{ item }}
   args:
     executable: /bin/bash
@@ -168,6 +167,24 @@
     enabled: yes
     name: php5.6-fpm
     state: started
+- file:
+    group: root
+    mode: 0777
+    owner: root
+    path: /var/lib/php/sessions
+    state: directory
+- file:
+    group: root
+    mode: 0777
+    owner: root
+    path: /var/lib/php/sessions/administrators
+    state: directory
+- file:
+    group: root
+    mode: 0777
+    owner: root
+    path: /var/lib/php/sessions/visitors
+    state: directory
 - copy:
     dest: /etc/php/5.6/apache2/php.ini
     group: root
@@ -263,7 +280,6 @@
     - pspell
     - readline
     - recode
-    - snmp
     - soap
     - sqlite3
     - tidy
@@ -331,7 +347,7 @@
     mode: 0644
     owner: root
     src: var/netenberg/fantastico_f3/sources/options/users.txt
-- command: /usr/bin/php index.php
+- shell: /usr/bin/php index.php scripts
   args:
     chdir: /var/netenberg/fantastico_f3/sources
     executable: /bin/bash

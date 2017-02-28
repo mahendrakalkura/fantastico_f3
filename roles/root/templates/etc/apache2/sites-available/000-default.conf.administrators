@@ -1,1 +1,1 @@
-{{ mod_auth_digest.administrators.username }}:{{ mod_auth_digest.administrators.password|password_hash('sha512') }}
+{{ apache2.mod_auth_digest.administrators.username }}:{{ apache2.mod_auth_digest.administrators.password|password_hash('sha512') }}

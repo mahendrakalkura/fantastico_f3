@@ -1,1 +1,1 @@
-{{ mod_auth_digest.visitors.username }}:{{ mod_auth_digest.visitors.password|password_hash('sha512') }}
+{{ apache2.mod_auth_digest.visitors.username }}:{{ apache2.mod_auth_digest.visitors.password|password_hash('sha512') }}
