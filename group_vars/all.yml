@@ -1,27 +1,30 @@
-mod_auth_digest:
-  administrators:
-    username: root
-    password: root
-  visitors:
-    username: ubuntu
-    password: ubuntu
+apache2:
+  ports:
+    administrators: 8001
+    visitors: 8002
+  mod_auth_digest:
+    administrators:
+      username: root
+      password: root
+    visitors:
+      username: ubuntu
+      password: ubuntu
+  domains_and_document_roots:
+    - domain: domain-1.com
+      document_root: /home/ubuntu/domain-1.com
+    - domain: sub-domain.domain-1.com
+      document_root: /home/ubuntu/sub-domain.domain-1.com
+    - domain: domain-2.com
+      document_root: /home/ubuntu/domain-2.com
+    - domain: sub-domain.domain-2.com
+      document_root: /home/ubuntu/sub-domain.domain-2.com
+    - domain: domain-3.com
+      document_root: /home/ubuntu/domain-3.com
+    - domain: sub-domain.domain-3.com
+      document_root: /home/ubuntu/sub-domain.domain-3.com
 
 mysql:
   host: localhost
   port: 3306
   user: ubuntu
   password: ubuntu
-
-domains_and_document_roots:
-  - domain: domain-1.com
-    document_root: /home/ubuntu/domain-1.com
-  - domain: sub-domain.domain-1.com
-    document_root: /home/ubuntu/sub-domain.domain-1.com
-  - domain: domain-2.com
-    document_root: /home/ubuntu/domain-2.com
-  - domain: sub-domain.domain-2.com
-    document_root: /home/ubuntu/sub-domain.domain-2.com
-  - domain: domain-3.com
-    document_root: /home/ubuntu/domain-3.com
-  - domain: sub-domain.domain-3.com
-    document_root: /home/ubuntu/sub-domain.domain-3.com
