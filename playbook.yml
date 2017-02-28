@@ -1,6 +1,10 @@
 ---
-- gather_facts: no
+
+- become: yes
+  become_method: sudo
+  become_user: root
+  gather_facts: no
   hosts: server
-  remote_user: root
+  user: ubuntu
   roles:
      - root
