@@ -51,27 +51,13 @@ $ ansible-playbook --inventory inventory playbook.yml
 
 ## **Step 4:**
 
-Set the `root` password.
-
-```
-# passwd root
-```
-
-## **Step 5:**
-
-Set the `ubuntu` password.
-
-```
-# passwd ubuntu
-```
-
-## **Step 6:**
-
 Open the following URLs in your browser.
 
 * `http://XXX.XXX.XXX.XXX:8001`
-    * **Username:** `root`
-    * **Password:** (see **Step 4**)
+    * **Username:** `{{ mod_auth_digest.administrators.username }}`
+    * **Password:** `{{ mod_auth_digest.administrators.password }}`
+    * **Reference:** `group_vars/all.yml`
 * `http://XXX.XXX.XXX.XXX:8002`
-    * **Username:** `ubuntu`
-    * **Password:** (see **Step 5**)
+    * **Username:** `{{ mod_auth_digest.visitors.username }}`
+    * **Password:** `{{ mod_auth_digest.visitors.password }}`
+    * **Reference:** `group_vars/all.yml`
