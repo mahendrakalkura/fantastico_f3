@@ -59,8 +59,7 @@
     - php5.6-xmlrpc
     - php5.6-xsl
     - php5.6-zip
-    - python
-    - python-pip
+    - python3-pip
     - tmux
     - tree
     - unzip
@@ -69,7 +68,7 @@
 - pip:
     name: "{{ item }}"
   with_items:
-    - mysql-python
+    - mysqlclient
 
 - blockinfile:
     block: "{{ lookup('template', 'etc/hosts') }}"
