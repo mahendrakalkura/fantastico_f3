@@ -93,6 +93,12 @@
     group: ubuntu
     mode: 0755
     owner: ubuntu
+    path: "/home/ubuntu/public_html"
+    state: directory
+- file:
+    group: ubuntu
+    mode: 0755
+    owner: ubuntu
     path: "{{ item }}"
     state: directory
   with_document_roots: "{{ apache2.domains_and_document_roots }}"
