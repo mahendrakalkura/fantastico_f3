@@ -4,7 +4,6 @@
   become_method: sudo
   become_user: root
   gather_facts: no
-  hosts: server
-  user: ubuntu
+  hosts: hosts
   roles:
      - root
