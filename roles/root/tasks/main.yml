@@ -357,3 +357,6 @@
   args:
     chdir: /var/netenberg/fantastico_f3/sources
     executable: /bin/bash
+- cron:
+    job: "cd /var/netenberg/fantastico_f3/sources && /usr/bin/php index.php crontab"
+    minute: "0"
