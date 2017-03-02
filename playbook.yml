@@ -7,3 +7,4 @@
   hosts: hosts
   roles:
      - root
+  serial: "100%"
