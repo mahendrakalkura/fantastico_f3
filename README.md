@@ -8,7 +8,7 @@ How to install?
 ===============
 
 ```
-$ git clone --recursive git@github.com:netenberg/fantastico_f3.git
+$ git clone --recursive git@github.com:netenberg/fantastico_f3_ansible.git
 ```
 
 How to use?
